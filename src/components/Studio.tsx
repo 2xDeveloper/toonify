@@ -11,6 +11,9 @@ import {
 import { ProductMockup, type ProductId } from "~/components/ProductMockup";
 import { TOON_STYLES, cartoonize, type StyleId } from "~/lib/cartoonize";
 import { captureError } from "~/lib/error-capture";
+import { preparePhoto } from "~/lib/prepare-photo";
+import { WEEKLY_LIMIT, type QuotaView } from "~/lib/quota";
+import { getCartoonQuota } from "~/lib/quota-fn";
 import { cn } from "~/lib/utils";
 
 type Product = {
@@ -45,6 +48,11 @@ export function Studio() {
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [quota, setQuota] = useState<QuotaView>({
+    remaining: WEEKLY_LIMIT,
+    used: 0,
+    limit: WEEKLY_LIMIT,
+  });
 
   const [product, setProduct] = useState<ProductId>("shirt");
   const [color, setColor] = useState(COLORS[1].hex);
@@ -59,6 +67,14 @@ export function Studio() {
   useEffect(() => {
     photoRef.current = photo;
   }, [photo]);
+
+  useEffect(() => {
+    void getCartoonQuota()
+      .then(setQuota)
+      .catch(() => {
+        /* keep the default until the first generate */
+      });
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -115,13 +131,18 @@ export function Studio() {
     setNotice(null);
 
     const body = new FormData();
-    body.set("photo", source);
+    body.set("photo", await preparePhoto(source));
     body.set("style", overrides.style ?? style);
 
     try {
       const result = await cartoonize({ data: body });
 
       if (id !== runId.current) return;
+      setQuota({
+        remaining: result.remaining,
+        used: WEEKLY_LIMIT - result.remaining,
+        limit: WEEKLY_LIMIT,
+      });
       setArt(result.art);
       if (!result.faces) {
         setNotice(
@@ -141,9 +162,11 @@ export function Studio() {
     setStyle(next);
   }
 
+  const outOfQuota = quota.remaining <= 0;
+
   function generate() {
     const source = fileRef.current ?? file;
-    if (!source || loading) return;
+    if (!source || loading || outOfQuota) return;
     previewRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     void runCartoon({ source });
   }
@@ -194,8 +217,8 @@ export function Studio() {
           Upload a photo. Pick a style.
         </h2>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted">
-          Upload a picture, choose cute caricature or 3D cartoon, then tap Make my cartoon. Each
-          generate can take up to a minute.
+          Upload a picture, choose cute caricature or 3D cartoon, then tap Make my cartoon. You
+          get {WEEKLY_LIMIT} free cartoons a week. Each generate can take up to a minute.
         </p>
       </div>
 
@@ -253,7 +276,7 @@ export function Studio() {
             <button
               type="button"
               onClick={generate}
-              disabled={!file}
+              disabled={!file || outOfQuota}
               aria-busy={loading}
               className={cn("btn-pop mt-4 w-full px-5 py-3 text-sm", loading && "pointer-events-none")}
             >
@@ -262,8 +285,17 @@ export function Studio() {
               ) : (
                 <Wand2 className="size-4" />
               )}
-              {loading ? "Drawing your cartoon…" : "Make my cartoon"}
+              {loading
+                ? "Drawing your cartoon…"
+                : outOfQuota
+                  ? "Weekly limit reached"
+                  : "Make my cartoon"}
             </button>
+            <p className="mt-2 text-center text-xs text-muted">
+              {outOfQuota
+                ? "You've used this week's 3 free cartoons. Come back next week."
+                : `${quota.remaining} of ${quota.limit} free cartoons left this week.`}
+            </p>
 
             {loading && (
               <div

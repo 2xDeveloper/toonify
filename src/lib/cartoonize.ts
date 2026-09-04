@@ -28,6 +28,7 @@ export type ToonResult = {
   /** PNG data URL, ready to drop straight into an <img src>. */
   art: string;
   faces: number;
+  remaining: number;
 };
 
 const STYLE_IDS: ReadonlySet<string> = new Set(TOON_STYLES.map((s) => s.id));
@@ -116,8 +117,11 @@ export const cartoonize = createServerFn({ method: "POST" })
     if (photo.size > MAX_BYTES) throw new Error("That image is over 12 MB. Try a smaller one.");
     if (!STYLE_IDS.has(style)) throw new Error("Unknown style.");
 
+    const { assertCanGenerate, recordGenerate } = await import("./rate-limit.server");
+    await assertCanGenerate();
+
     const body = new FormData();
-    body.set("model", "gpt-image-1.5");
+    body.set("model", "gpt-image-1-mini");
     body.set("prompt", PROMPTS[style]);
     body.set("quality", "medium");
     body.set("size", "1024x1024");
@@ -156,8 +160,11 @@ export const cartoonize = createServerFn({ method: "POST" })
     const b64 = parsed.data?.[0]?.b64_json;
     if (!b64) throw new Error("We didn't get an image back. Try again.");
 
+    const quota = await recordGenerate();
+
     return {
       art: `data:image/png;base64,${b64}`,
       faces: 1,
+      remaining: quota.remaining,
     };
   });

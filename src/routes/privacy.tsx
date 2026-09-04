@@ -36,9 +36,9 @@ function PrivacyPage() {
 
       <LegalBlock title="3. Cookies">
         <p>
-          Toonify does not set advertising cookies. The site may use whatever storage the
-          browser needs to load the page. You can block cookies in your browser; the generator
-          still works if you can upload a file.
+          Toonify does not set advertising cookies. We set a small quota cookie so the free
+          generator can stay limited to 3 cartoons a week per visitor. The site may also use
+          whatever storage the browser needs to load the page.
         </p>
       </LegalBlock>
 

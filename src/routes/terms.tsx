@@ -26,10 +26,10 @@ function TermsPage() {
 
       <LegalBlock title="2. The free cartoon">
         <p>
-          You may upload a photo and generate a cartoon at no charge. We can change, throttle, or
-          stop the generator at any time. The result is a stylized version of your photo — not a
-          guarantee that it will look like a hand-drawn caricature or that anyone will recognize
-          the person in it.
+          You may upload a photo and generate up to 3 cartoons per week at no charge. The limit
+          is per visitor (device and network). We can change, throttle, or stop the generator at
+          any time. The result is a stylized version of your photo — not a guarantee that it will
+          look like a hand-drawn caricature or that anyone will recognize the person in it.
         </p>
       </LegalBlock>
 

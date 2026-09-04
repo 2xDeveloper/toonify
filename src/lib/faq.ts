@@ -1,7 +1,7 @@
 export const FAQS = [
   {
     q: "Is the cartoon really free?",
-    a: "Yes. Upload a photo, pick a style, and download the cartoon at no charge. There is no account and no watermark. Product prices you see on the page are for the printed merch, which is not checking out yet.",
+    a: "Yes — 3 cartoons per week, no account and no watermark. After that, come back the following week. Product prices you see on the page are for the printed merch, which is not checking out yet.",
   },
   {
     q: "What photo works best?",

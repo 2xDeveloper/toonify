@@ -21,7 +21,7 @@ export function ProductMockup({ product, color, art, blurred = false, className 
   const area = PRINT_AREA[product];
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-[420px]", className)}>
+    <div className={cn("relative isolate mx-auto w-full max-w-[420px]", className)}>
       <svg viewBox="0 0 400 440" className="w-full drop-shadow-[0_18px_28px_rgba(30,41,59,0.14)]">
         <defs>
           <linearGradient id="mockup-shade" x1="0" y1="0" x2="1" y2="1">
@@ -38,14 +38,14 @@ export function ProductMockup({ product, color, art, blurred = false, className 
 
       {art && (
         <div
-          className="pointer-events-none absolute flex items-center justify-center"
-          style={{ ...area, mixBlendMode: "multiply" }}
+          className="pointer-events-none absolute flex items-center justify-center rounded-md bg-white p-[4%] shadow-[0_1px_2px_rgba(15,23,42,0.12)]"
+          style={area}
         >
           <img
             src={art}
             alt="Your cartoon printed on the product"
             className={cn(
-              "max-h-full max-w-full object-contain transition-[filter,opacity] duration-500",
+              "max-h-full max-w-full object-contain mix-blend-normal transition-[filter,opacity] duration-500",
               blurred ? "scale-[0.98] opacity-80 blur-md" : "blur-0 opacity-100",
             )}
           />
