@@ -43,7 +43,7 @@ export function SiteNav() {
                 activeOptions={{ exact: true, includeHash: true }}
                 className={cn(
                   "rounded-full px-3.5 py-1.5 text-sm font-medium text-white/90 transition-colors",
-                  active && "bg-white/90 text-sky-deep shadow-sm",
+                  active && "bg-white/90 text-black shadow-sm",
                 )}
               >
                 {item.label}
@@ -63,19 +63,26 @@ export function SiteNav() {
       </header>
 
       <nav className="relative z-20 mx-auto flex max-w-6xl gap-1 overflow-x-auto px-6 pb-2 md:hidden">
-        {LINKS.map((item) => (
-          <Link
-            key={`m-${item.label}`}
-            to={item.to}
-            hash={item.hash}
-            hashScrollIntoView={{ behavior: "smooth", block: "start" }}
-            activeOptions={{ exact: true, includeHash: true }}
-            className="shrink-0 rounded-full px-3 py-1 text-sm font-medium text-white/90"
-            activeProps={{ className: "bg-white/90 text-sky-deep" }}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {LINKS.map((item) => {
+          const active =
+            item.to === pathname &&
+            (item.hash ? hash === item.hash : pathname !== "/" || !hash || hash === "top");
+
+          return (
+            <Link
+              key={`m-${item.label}`}
+              to={item.to}
+              hash={item.hash}
+              hashScrollIntoView={{ behavior: "smooth", block: "start" }}
+              className={cn(
+                "shrink-0 rounded-full px-3 py-1 text-sm font-medium",
+                active ? "bg-white/90 text-black" : "text-white/90",
+              )}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );
