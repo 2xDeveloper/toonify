@@ -13,7 +13,7 @@ export const TOON_STYLES = [
   {
     id: "caricature",
     label: "Cute Caricature",
-    blurb: "Big-head hand-drawn look. Clean ink, bright color, white background.",
+    blurb: "Big-head ink caricature. Hand-drawn lines, bright paint, white background.",
   },
   {
     id: "3d",
@@ -35,13 +35,15 @@ const STYLE_IDS: ReadonlySet<string> = new Set(TOON_STYLES.map((s) => s.id));
 
 const PROMPTS: Record<StyleId, string> = {
   caricature: [
-    "Redraw this photo as a cute professional caricature illustration for merch, like a skilled street caricature artist using ink and markers.",
-    "Proportions: oversized friendly heads, smaller simplified bodies. Playful, never mean.",
-    "Line and color: bold clean black outlines, smooth marker / watercolor fills, rosy cheeks, glossy highlights on eyes, lips, and hair. White background.",
-    "Faces: large bright cartoon eyes with sparkle, small cute nose, warm joyful smile. Smooth painted skin only.",
-    "Keep recognizable: the same people and count, ages, hair color and hairstyle, skin tone, glasses, and clothing colors.",
-    "Do not copy photographic face geometry, pores, stubble texture, realistic teeth, or camera lighting.",
-    "Avoid: uncanny valley, photorealism, horror, grimaces, extra people, text, captions, logos, watermarks, inset reference photos.",
+    "Create a brand-new professional merch caricature from this photo. This is a full redraw by a skilled caricature illustrator, not a filter, not a 3D render, and not a traced photo.",
+    "Genre: modern digital caricature sold as custom couple/family art. Big-head, small-body cartoon. Fun, flattering, and cute — never mean, never creepy.",
+    "Proportions: heads about 2 to 3 times too big, compact simplified bodies and hands. If the photo is a close portrait, still invent a small torso and shoulders so it reads as a caricature, not a floating face. Keep the real pose if it is clear; do not invent a new gimmick pose.",
+    "Line art: confident varied black ink outlines, thicker on the silhouette, thinner inside. Light cross-hatching and short tick marks for shadow under chins, in hair, and in clothing folds. It must look hand-inked.",
+    "Paint: rich marker and digital-watercolor fills, warm skin with a soft blush, bright clothing colors, glossy white highlights on eyes, lips, nose, and hair. Smooth painted skin — no pores, no camera grain.",
+    "Faces: large lively cartoon eyes with clear irises and sparkle, a joyful open smile, simplified cute noses. Exaggerate the most recognizable traits a little (hair volume, glasses, smile) while staying kind.",
+    "Identity: same people and same count, same ages, hair color and hairstyle, skin tone, glasses, facial hair as graphic marks (not photoreal stubble), and clothing colors.",
+    "Background: clean plain white. No ground texture needed beyond a tiny hatch shadow under the feet if full bodies are shown.",
+    "Hard avoid: photorealism, uncanny valley, horror, grimaces, extra people, text, captions, logos, badges, watermarks, inset photos, frames, signatures.",
   ].join(" "),
   "3d": [
     "Turn this photo into a cute Pixar / Disney 3D animated character portrait, like a modern family film still.",
