@@ -1,6 +1,6 @@
 /** Shrink a photo before upload so image-token costs stay low. */
 
-const MAX_EDGE = 1536;
+const MAX_EDGE = 1024;
 const JPEG_QUALITY = 0.92;
 
 export async function preparePhoto(file: File): Promise<File> {

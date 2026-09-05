@@ -125,8 +125,8 @@ export const cartoonize = createServerFn({ method: "POST" })
     const body = new FormData();
     body.set("model", "gpt-image-2");
     body.set("prompt", PROMPTS[style]);
-    body.set("quality", "high");
-    body.set("size", "1536x1536");
+    body.set("quality", "medium");
+    body.set("size", "1024x1024");
     body.set("image", photo, photo.name || "photo.jpg");
 
     let response: Response;
