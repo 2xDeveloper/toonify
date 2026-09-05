@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
  */
 
 const OPENAI_EDITS = "https://api.openai.com/v1/images/edits";
-const TIMEOUT_MS = 90_000;
+const TIMEOUT_MS = 150_000;
 const MAX_BYTES = 12 * 1024 * 1024;
 
 export const TOON_STYLES = [
@@ -41,7 +41,7 @@ const PROMPTS: Record<StyleId, string> = {
     "Line art: confident varied black ink outlines, thicker on the silhouette, thinner inside. Light cross-hatching and short tick marks for shadow under chins, in hair, and in clothing folds. It must look hand-inked.",
     "Paint: rich marker and digital-watercolor fills, warm skin with a soft blush, bright clothing colors, glossy white highlights on eyes, lips, nose, and hair. Smooth painted skin — no pores, no camera grain.",
     "Faces: large lively cartoon eyes with clear irises and sparkle, a joyful open smile, simplified cute noses. Exaggerate the most recognizable traits a little (hair volume, glasses, smile) while staying kind.",
-    "Identity: same people and same count, same ages, hair color and hairstyle, skin tone, glasses, facial hair as graphic marks (not photoreal stubble), and clothing colors.",
+    "Identity: the people must look like the real people in the photo at a glance. Keep the true face shape, eyes, nose, jaw, hairline, and expression. Same count, ages, hair color and hairstyle, skin tone, glasses, facial hair as graphic marks (not photoreal stubble), and clothing colors. Someone who knows them should recognize them instantly.",
     "Background: clean plain white. No ground texture needed beyond a tiny hatch shadow under the feet if full bodies are shown.",
     "Hard avoid: photorealism, uncanny valley, horror, grimaces, extra people, text, captions, logos, badges, watermarks, inset photos, frames, signatures.",
   ].join(" "),
@@ -50,7 +50,7 @@ const PROMPTS: Record<StyleId, string> = {
     "Style: fully stylized 3D cartoon. Big glossy eyes with bright catchlights, tiny button nose, round soft cheeks with blush, chunky sculpted hair.",
     "Skin must look like smooth painted animation, not a real person. No pores, no peach fuzz, no photoreal teeth or gums.",
     "Mood: warm, friendly, wholesome. Soft studio lighting, gentle shadows, simple clean background.",
-    "Keep recognizable: the same people and count, ages, hair color, skin tone, glasses, and clothing colors.",
+    "Keep immediately recognizable as the real people: same count, ages, true face shape, eyes, nose, jaw, hairline, hair color, skin tone, glasses, and clothing colors. Someone who knows them should recognize them instantly.",
     "Do not preserve photographic facial structure. Stylize hard so it cannot look like a filtered photo.",
     "Avoid: uncanny valley, realistic human faces, horror, extra people, text, watermarks, logos.",
   ].join(" "),
@@ -123,11 +123,10 @@ export const cartoonize = createServerFn({ method: "POST" })
     await assertCanGenerate();
 
     const body = new FormData();
-    body.set("model", "gpt-image-1-mini");
+    body.set("model", "gpt-image-2");
     body.set("prompt", PROMPTS[style]);
-    body.set("quality", "medium");
-    body.set("size", "1024x1024");
-    body.set("input_fidelity", "low");
+    body.set("quality", "high");
+    body.set("size", "1536x1536");
     body.set("image", photo, photo.name || "photo.jpg");
 
     let response: Response;

@@ -193,11 +193,11 @@ export function Studio() {
   }
 
   const phase =
-    elapsed < 8
+    elapsed < 10
       ? "Sending your photo…"
-      : elapsed < 25
+      : elapsed < 35
         ? "Sketching the cartoon…"
-        : elapsed < 45
+        : elapsed < 70
           ? "Still drawing — this part is slow."
           : "Taking longer than usual. Hang tight.";
 
@@ -218,7 +218,7 @@ export function Studio() {
         </h2>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted">
           Upload a picture, choose cute caricature or 3D cartoon, then tap Make my cartoon. You
-          get {WEEKLY_LIMIT} free cartoons a week. Each generate can take up to a minute.
+          get {WEEKLY_LIMIT} free cartoons a week. Each generate can take up to two minutes.
         </p>
       </div>
 
