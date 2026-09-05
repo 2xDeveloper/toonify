@@ -8,7 +8,12 @@ import {
   Upload,
   Wand2,
 } from "lucide-react";
-import { ProductMockup, type ProductId } from "~/components/ProductMockup";
+import {
+  DEFAULT_NAME_POS,
+  ProductMockup,
+  type NamePos,
+  type ProductId,
+} from "~/components/ProductMockup";
 import { TOON_STYLES, cartoonize, type StyleId } from "~/lib/cartoonize";
 import { captureError } from "~/lib/error-capture";
 import { preparePhoto } from "~/lib/prepare-photo";
@@ -57,6 +62,8 @@ export function Studio() {
   const [product, setProduct] = useState<ProductId>("shirt");
   const [color, setColor] = useState(COLORS[1].hex);
   const [size, setSize] = useState("M");
+  const [printName, setPrintName] = useState("");
+  const [namePos, setNamePos] = useState<Record<ProductId, NamePos>>({ ...DEFAULT_NAME_POS });
 
   const fileInput = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
@@ -186,6 +193,8 @@ export function Studio() {
     setFile(null);
     fileRef.current = null;
     setArt(null);
+    setPrintName("");
+    setNamePos({ ...DEFAULT_NAME_POS });
     setLoading(false);
     setError(null);
     setNotice(null);
@@ -356,6 +365,24 @@ export function Studio() {
               ))}
             </div>
 
+            <label className="mt-5 block">
+              <span className="mb-2 block text-xs font-semibold tracking-wide text-muted uppercase">
+                Name on the product
+              </span>
+              <input
+                type="text"
+                value={printName}
+                maxLength={22}
+                placeholder="e.g. Maya"
+                autoComplete="given-name"
+                onChange={(event) => setPrintName(event.target.value)}
+                className="w-full rounded-xl border border-line bg-background px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-muted/70 focus:border-accent"
+              />
+              <span className="mt-2 block text-xs text-muted">
+                Type a name, then drag it on the shirt, mug, or case.
+              </span>
+            </label>
+
             <p className="mt-5 mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
               Size
             </p>
@@ -397,7 +424,17 @@ export function Studio() {
             ref={previewRef}
             className="relative flex min-h-[320px] flex-1 items-center justify-center overflow-hidden rounded-xl bg-background p-6"
           >
-            <ProductMockup product={product} color={color} art={art} blurred={loading} />
+            <ProductMockup
+              product={product}
+              color={color}
+              art={art}
+              blurred={loading}
+              name={printName}
+              namePos={namePos[product]}
+              onNamePosChange={(pos) =>
+                setNamePos((current) => ({ ...current, [product]: pos }))
+              }
+            />
 
             {loading && (
               <div

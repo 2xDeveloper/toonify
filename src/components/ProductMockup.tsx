@@ -1,6 +1,8 @@
+import { useRef, useState, type PointerEvent } from "react";
 import { cn } from "~/lib/utils";
 
 export type ProductId = "shirt" | "mug" | "case";
+export type NamePos = { x: number; y: number };
 
 type Props = {
   product: ProductId;
@@ -8,6 +10,15 @@ type Props = {
   art?: string | null;
   blurred?: boolean;
   className?: string;
+  name?: string;
+  namePos?: NamePos;
+  onNamePosChange?: (pos: NamePos) => void;
+};
+
+export const DEFAULT_NAME_POS: Record<ProductId, NamePos> = {
+  shirt: { x: 50, y: 70 },
+  mug: { x: 45.5, y: 74 },
+  case: { x: 50, y: 80 },
 };
 
 /** Where the artwork sits on each mockup, as a share of the SVG box. */
@@ -17,11 +28,21 @@ const PRINT_AREA: Record<ProductId, { left: string; top: string; width: string; 
   case: { left: "36%", top: "36%", width: "28%", height: "42%" },
 };
 
-export function ProductMockup({ product, color, art, blurred = false, className }: Props) {
+export function ProductMockup({
+  product,
+  color,
+  art,
+  blurred = false,
+  className,
+  name,
+  namePos,
+  onNamePosChange,
+}: Props) {
   const area = PRINT_AREA[product];
+  const pos = namePos ?? DEFAULT_NAME_POS[product];
 
   return (
-    <div className={cn("relative isolate mx-auto w-full max-w-[420px]", className)}>
+    <div className={cn("relative isolate mx-auto w-full max-w-[420px] [container-type:inline-size]", className)}>
       <svg viewBox="0 0 400 440" className="w-full drop-shadow-[0_18px_28px_rgba(30,41,59,0.14)]">
         <defs>
           <linearGradient id="mockup-shade" x1="0" y1="0" x2="1" y2="1">
@@ -60,7 +81,100 @@ export function ProductMockup({ product, color, art, blurred = false, className 
           <span className="text-xs text-slate-400">your art here</span>
         </div>
       )}
+
+      {name?.trim() && (
+        <PrintName
+          text={name.trim()}
+          pos={pos}
+          productColor={color}
+          onMove={onNamePosChange}
+        />
+      )}
     </div>
+  );
+}
+
+function luminance(hex: string) {
+  const raw = hex.replace("#", "");
+  const n = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  const r = Number.parseInt(n.slice(0, 2), 16) / 255;
+  const g = Number.parseInt(n.slice(2, 4), 16) / 255;
+  const b = Number.parseInt(n.slice(4, 6), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function PrintName({
+  text,
+  pos,
+  productColor,
+  onMove,
+}: {
+  text: string;
+  pos: NamePos;
+  productColor: string;
+  onMove?: (pos: NamePos) => void;
+}) {
+  const nodeRef = useRef<HTMLButtonElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const light = luminance(productColor) > 0.55;
+  const ink = light ? "#0f172a" : "#ffffff";
+  const halo = light ? "#ffffff" : "#0f172a";
+
+  function pointToPercent(clientX: number, clientY: number): NamePos | null {
+    const box = nodeRef.current?.offsetParent;
+    if (!(box instanceof HTMLElement)) return null;
+    const rect = box.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: Math.min(92, Math.max(8, ((clientX - rect.left) / rect.width) * 100)),
+      y: Math.min(92, Math.max(8, ((clientY - rect.top) / rect.height) * 100)),
+    };
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLButtonElement>) {
+    if (!onMove) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragging(true);
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    if (!onMove || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    const next = pointToPercent(event.clientX, event.clientY);
+    if (next) onMove(next);
+  }
+
+  function onPointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setDragging(false);
+  }
+
+  return (
+    <button
+      ref={nodeRef}
+      type="button"
+      aria-label={`Move the name ${text} on the product`}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      className={cn(
+        "absolute z-10 max-w-[70%] cursor-grab touch-none px-1.5 py-0.5 text-center font-display leading-none select-none",
+        dragging && "z-20 cursor-grabbing scale-[1.04]",
+      )}
+      style={{
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        transform: "translate(-50%, -50%)",
+        color: ink,
+        fontSize: "7cqi",
+        textShadow: `-1px -1px 0 ${halo}, 1px -1px 0 ${halo}, -1px 1px 0 ${halo}, 1px 1px 0 ${halo}, 0 2px 10px rgba(15,23,42,0.2)`,
+      }}
+    >
+      {text}
+    </button>
   );
 }
 
